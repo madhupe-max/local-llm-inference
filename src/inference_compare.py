@@ -1,7 +1,7 @@
 import argparse
 import os
 import time
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 
 import requests
 
@@ -27,15 +27,20 @@ def call_openai(
     prompt: str,
     model: str = DEFAULT_OPENAI_MODEL,
     base_url: str = DEFAULT_OPENAI_URL,
-    api_key: str | None = None,
+    api_key: Optional[str] = None,
 ) -> str:
     api_key = api_key or os.getenv("OPENAI_API_KEY")
+    if api_key is None:
+        raise ValueError("OPENAI_API_KEY is required for cloud inference")
+
+    # Normalize to string to avoid unsupported operand errors in header composition.
+    api_key = str(api_key).strip()
     if not api_key:
         raise ValueError("OPENAI_API_KEY is required for cloud inference")
 
     response = requests.post(
         f"{base_url}/chat/completions",
-        headers={"Authorization": "Bearer " + api_key},
+        headers={"Authorization": f"Bearer {api_key}"},
         json={"model": model, "messages": [{"role": "user", "content": prompt}]},
         timeout=60,
     )

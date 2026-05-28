@@ -35,7 +35,9 @@ export OPENAI_BASE_URL=https://api.openai.com/v1
 ## 3) Install dependencies
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
 ## 4) Run comparison
@@ -51,5 +53,5 @@ The command prints:
 ## 5) Run tests
 
 ```bash
-pytest -q
+python -m pytest -q
 ```

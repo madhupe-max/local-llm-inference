@@ -36,6 +36,17 @@ def test_call_openai_requires_api_key():
         raise AssertionError("Expected ValueError when api key is missing")
 
 
+def test_call_openai_accepts_non_string_api_key(monkeypatch):
+    def fake_post(url, headers, json, timeout):
+        assert url.endswith("/chat/completions")
+        assert headers["Authorization"] == "Bearer 12345"
+        assert json["messages"][0]["content"] == "hello"
+        return DummyResponse({"choices": [{"message": {"content": "cloud answer"}}]})
+
+    monkeypatch.setattr("src.inference_compare.requests.post", fake_post)
+    assert call_openai("hello", api_key=12345) == "cloud answer"
+
+
 def test_compare_inference_uses_both_clients():
     results = compare_inference(
         "compare this",
